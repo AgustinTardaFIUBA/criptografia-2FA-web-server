@@ -9,6 +9,7 @@ import requests
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
+serverGeneratorSeed = None
 
 # WEB PAGE
 # homepage route
@@ -26,41 +27,19 @@ def index():
 #API Server/APP
 
 # login form route
-@app.route("/login/", methods=["POST"])
+@app.route("/register-service/", methods=["POST"])
 def login_form():
-    credentials = {"username": "cripto", "password": "1234"}
+    serverGeneratorSeed = request.form.get("secret")
 
-
-    username = request.form.get("username")
-    password = request.form.get("password")
-
-    if username == credentials["username"] and password == credentials["password"]:
-        # inform users if creds are valid
-        flash("Las credenciales ingresadas son correctas", "success")
-        return redirect(url_for("login_2fa"))
+# login form route
+@app.route("/register-service/", methods=["GET"])
+def login_form():
+    if serverGeneratorSeed == None:
+        return {"error": "The Token is invalid, the user is not authenticated "}, 400
     else:
-        # inform users if creds are invalid
-        flash("Las credenciales ingresadas son incorrectas!", "danger")
-        return redirect(url_for("login"))
+        return generador2FA.generate_totp(serverGeneratorSeed,6), 200
 
-# 2FA form route
-@app.route("/login/2fa/", methods=["POST"])
-def login_2fa_form():
-    # getting secret key used by user
-    secret = request.form.get("secret")
-    
-    # getting OTP provided by user
-    totp = request.form.get("totp")
-        
-    # verifying submitted OTP
-    if generador2FA.verify_totp(totp,secret):
-        #inform users if OTP is valid
-        flash("El token TOTP ingresado es válido.", "success")
-        return redirect(url_for("login_2fa"))
-    else:
-        # inform users if OTP is invalid
-        flash("El token TOTP ingresado es inválido.", "danger")
-        return redirect(url_for("login_2fa"))
+
     
 # running flask server
 if __name__ == "__main__":

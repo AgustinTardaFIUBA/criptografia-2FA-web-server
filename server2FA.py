@@ -17,20 +17,6 @@ def index():
     print("Server OTP generation: {}".format(generador2FA.generate_totp(serverGeneratorSeed,6)))
     return "<h1>Prototipo de autenticación TOTP</h1>"
 
-# login page route
-@app.route("/login/")
-def login():
-    return render_template("login.html")        
-    
-# 2FA page route
-@app.route("/login/2fa/")
-def login_2fa():
-    # generating random secret key for authentication
-    totp = generador2FA.generate_totp(serverGeneratorSeed,6)
-    
-    return render_template("login_2fa.html", secret=serverGeneratorSeed, totp=totp)
-
-
 #API Server/APP
 
 # login form route
@@ -38,37 +24,30 @@ def login_2fa():
 def login_form():
     credentials = {"username": "cripto", "password": "1234"}
 
-
     username = request.form.get("username")
     password = request.form.get("password")
 
     if username == credentials["username"] and password == credentials["password"]:
-        # inform users if creds are valid
-        flash("Las credenciales ingresadas son correctas", "success")
-        return redirect(url_for("login_2fa"))
+        return 200
     else:
-        # inform users if creds are invalid
-        flash("Las credenciales ingresadas son incorrectas!", "danger")
-        return redirect(url_for("login"))
+        return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
 # 2FA form route
 @app.route("/login/2fa/", methods=["POST"])
 def login_2fa_form():
-    # getting secret key used by user
-    secret = request.form.get("secret")
     
     # getting OTP provided by user
     totp = request.form.get("totp")
         
     # verifying submitted OTP
-    if generador2FA.verify_totp(totp,secret):
+    if generador2FA.verify_totp(totp,serverGeneratorSeed):
         #inform users if OTP is valid
         flash("El token TOTP ingresado es válido.", "success")
-        return redirect(url_for("login_2fa"))
+        return 200
     else:
         # inform users if OTP is invalid
         flash("El token TOTP ingresado es inválido.", "danger")
-        return redirect(url_for("login_2fa"))
+        return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
 @app.route("/sync", methods=["GET"])
 def sync_with_app():
