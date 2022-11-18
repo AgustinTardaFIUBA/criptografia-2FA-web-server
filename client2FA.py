@@ -9,7 +9,8 @@ import requests
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
-serverGeneratorSeed = None
+
+generatorSeed = None
 
 # WEB PAGE
 # homepage route
@@ -28,16 +29,16 @@ def index():
 
 # login form route
 @app.route("/register-service/", methods=["POST"])
-def login_form():
-    serverGeneratorSeed = request.form.get("secret")
+def registerService():
+    generatorSeed = request.form.get("secret")
 
 # login form route
-@app.route("/register-service/", methods=["GET"])
-def login_form():
-    if serverGeneratorSeed == None:
+@app.route("/generate-token/", methods=["GET"])
+def generateToken():
+    if generatorSeed == None:
         return {"error": "The Token is invalid, the user is not authenticated "}, 400
     else:
-        return generador2FA.generate_totp(serverGeneratorSeed,6), 200
+        return generador2FA.generate_totp(generatorSeed,6), 200
 
 
     
