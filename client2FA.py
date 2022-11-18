@@ -4,9 +4,11 @@ from flask import *
 from flask_bootstrap import Bootstrap
 import generador2FA
 import requests
+from flask_cors import CORS, cross_origin
 
 # configuring flask application
 app = Flask(__name__)
+CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
 
@@ -38,7 +40,8 @@ def generateToken():
     if generatorSeed == None:
         return {"error": "The Token is invalid, the user is not authenticated "}, 400
     else:
-        return generador2FA.generate_totp(generatorSeed,6), 200
+        token, secondsLeft = generador2FA.generate_totp(generatorSeed,6)
+        return {"token":token, "secondsLeft": secondsLeft}, 200
 
 
     

@@ -28,7 +28,7 @@ def generate_totp(seed, digits):
 
 
     digest = h.hexdigest()
-    return truncate(digest, digits)
+    return truncate(digest, digits), time_step - (current_time % time_step)
 
 def truncate(digest, digits):
     # Dynamic Truncation

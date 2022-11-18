@@ -3,9 +3,11 @@
 from flask import *
 from flask_bootstrap import Bootstrap
 import generador2FA
+from flask_cors import CORS, cross_origin
 
 # configuring flask application
 app = Flask(__name__)
+CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
 serverGeneratorSeed = generador2FA.generate_seed()
