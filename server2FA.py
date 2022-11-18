@@ -10,12 +10,13 @@ app = Flask(__name__)
 CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
-serverGeneratorSeed = generador2FA.generate_seed()
+serverGeneratorSeed = None
 
 # WEB PAGE
 # homepage route
 @app.route("/")
 def index():
+    print(serverGeneratorSeed)
     print("Server OTP generation: {}".format(generador2FA.generate_totp(serverGeneratorSeed,6)))
     return "<h1>Prototipo de autenticación TOTP</h1>"
 
@@ -57,6 +58,7 @@ def sync_with_app():
     
 # running flask server
 if __name__ == "__main__":
+    serverGeneratorSeed = generador2FA.generate_seed()
     app.run(debug=True)
 
 
