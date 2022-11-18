@@ -3,6 +3,7 @@ import hmac
 import math
 import secrets
 import time
+import sys
 import threading
 
 def generate_seed():
@@ -28,7 +29,7 @@ def generate_totp(seed, digits):
 
 
     digest = h.hexdigest()
-    return truncate(digest, digits), time_step - (current_time % time_step)
+    return truncate(digest, digits), (time_step - (current_time % time_step))
 
 def truncate(digest, digits):
     # Dynamic Truncation
@@ -41,4 +42,5 @@ def truncate(digest, digits):
     return str(passcode).zfill(digits) # Pads passcode with 0s if necessary
  
 def verify_totp(totp, seed):
-    return totp == generate_totp(seed,6)    
+    a, b = generate_totp(seed,6)   
+    return totp == a

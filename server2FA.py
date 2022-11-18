@@ -25,13 +25,13 @@ def index():
 # login form route
 @app.route("/login/", methods=["POST"])
 def login_form():
-    credentials = {"username": "cripto", "password": "1234"}
+    credentials = {"username": "cripto@gmail.com", "password": "1234"}
 
-    username = request.form.get("username")
-    password = request.form.get("password")
+    username = request.get_json().get("username")
+    password = request.get_json().get("password")
 
     if username == credentials["username"] and password == credentials["password"]:
-        return 200
+        return 'Success', 200
     else:
         return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
@@ -40,13 +40,13 @@ def login_form():
 def login_2fa_form():
     
     # getting OTP provided by user
-    totp = request.form.get("totp")
+    totp = request.get_json().get("totp")
         
     # verifying submitted OTP
     if generador2FA.verify_totp(totp,serverGeneratorSeed):
         #inform users if OTP is valid
         flash("El token TOTP ingresado es válido.", "success")
-        return 200
+        return 'Success', 200
     else:
         # inform users if OTP is invalid
         flash("El token TOTP ingresado es inválido.", "danger")
