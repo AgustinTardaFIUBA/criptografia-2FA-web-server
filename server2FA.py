@@ -7,7 +7,7 @@ from flask_cors import CORS, cross_origin
 
 # configuring flask application
 app = Flask(__name__)
-CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
 serverGeneratorSeed = None

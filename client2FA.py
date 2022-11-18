@@ -10,7 +10,7 @@ from flask import g
 
 # configuring flask application
 app = Flask(__name__)
-CORS(app, resources={r"/": {"origins": ""}}, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 generatorSeed = None
 Bootstrap(app)
