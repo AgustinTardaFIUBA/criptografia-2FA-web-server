@@ -41,21 +41,31 @@ def index():
 @app.route("/register-service", methods=["POST"])
 def registerService():
     generatorSeed = request.get_json().get("secret")
-    cache.set("generatorSeed", generatorSeed)
+    pageName = request.get_json().get("pageName")
+
+    generatorSeeds = cache.get('generatorSeeds')
+    generatorSeeds[pageName] = generatorSeed
+    cache.set("generatorSeeds", generatorSeed)
+
     return 'App registered', 200
 
 # login form route
 @app.route("/generate-token", methods=["GET"])
 def generateToken():
-    if cache.get('generatorSeed') == None:
+    if cache.get('generatorSeeds') == None:
         return {"error": "The generator seed is empty"}, 400
     else:
-        token, secondsLeft = generador2FA.generate_totp(cache.get('generatorSeed'),6)
-        return {"token":token, "secondsLeft": secondsLeft}, 200
+        generatorSeeds = cache.get('generatorSeeds')
+        tokensPerPage = {}
+        for generatorSeed in generatorSeeds:
+            tokensPerPage[generatorSeed] = generador2FA.generateTotpsForFiveMinutes(generatorSeeds[generatorSeed],6)
+        return {"tokens":tokensPerPage}, 200
 
 
 # running flask server
 if __name__ == "__main__":
+    generatorSeeds = {}
+    cache.set("generatorSeeds", generatorSeeds)
     app.run(debug=True, port=5001)
 
 
