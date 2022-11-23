@@ -45,9 +45,9 @@ def registerService():
 
     generatorSeeds = cache.get('generatorSeeds')
     generatorSeeds[pageName] = generatorSeed
-    cache.set("generatorSeeds", generatorSeed)
+    cache.set("generatorSeeds", generatorSeeds)
 
-    return 'App registered', 200
+    return jsonify('App registered'), 200
 
 # login form route
 @app.route("/generate-token", methods=["GET"])
@@ -57,7 +57,7 @@ def generateToken():
     else:
         generatorSeeds = cache.get('generatorSeeds')
         tokensPerPage = {}
-        for generatorSeed in generatorSeeds:
+        for generatorSeed in generatorSeeds.keys():
             tokensPerPage[generatorSeed] = generador2FA.generateTotpsForFiveMinutes(generatorSeeds[generatorSeed],6)
         return {"tokens":tokensPerPage}, 200
 

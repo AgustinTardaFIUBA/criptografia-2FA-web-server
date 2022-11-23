@@ -54,9 +54,9 @@ def generateTotpsForFiveMinutes(seed, digits):
     totps = []
     current_time = time.time()
     for i in range(0,10):
-        totp, time = generateTotpForTime(seed, digits, current_time + (i * 30))
-        totps.append({"totp": totp, "time": time + (i * 30)})
-    return {"tokens": totp, "strartinTime":current_time}
+        totp, t = generateTotpForTime(seed, digits, current_time + (i * 30))
+        totps.append({"totp": totp, "time": t + (i * 30)})
+    return {"tokens": totp, "startinTime":current_time}
 
 def truncate(digest, digits):
     # Dynamic Truncation
