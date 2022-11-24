@@ -29,7 +29,7 @@ def generate_totp(seed, digits):
 
 
     digest = h.hexdigest()
-    return truncate(digest, digits), (time_step - (current_time % time_step))
+    return {"token": truncate(digest, digits), "time": (time_step - (current_time % time_step))}
 
 def generateTotpForTime(seed, digits,time):
     # The current time must be hashed together with the shared key to make the passcode constantly change the hash digest.
@@ -50,13 +50,13 @@ def generateTotpForTime(seed, digits,time):
     digest = h.hexdigest()
     return truncate(digest, digits), (time_step - (time % time_step))
 
-def generateTotpsForFiveMinutes(seed, digits):
-    totps = []
-    current_time = time.time()
-    for i in range(0,10):
-        totp, t = generateTotpForTime(seed, digits, current_time + (i * 30))
-        totps.append({"totp": totp, "time": t + (i * 30)})
-    return {"tokens": totp, "startinTime":current_time}
+# def generateTotpsForFiveMinutes(seed, digits):
+#     totps = []
+#     current_time = time.time()
+#     for i in range(0,10):
+#         totp, t = generateTotpForTime(seed, digits, current_time + (i * 30))
+#         totps.append({"totp": totp, "time": t + (i * 30)})
+#     return {"tokens": totps, "startinTime":current_time}
 
 def truncate(digest, digits):
     # Dynamic Truncation

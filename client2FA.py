@@ -58,7 +58,7 @@ def generateToken():
         generatorSeeds = cache.get('generatorSeeds')
         tokensPerPage = {}
         for generatorSeed in generatorSeeds.keys():
-            tokensPerPage[generatorSeed] = generador2FA.generateTotpsForFiveMinutes(generatorSeeds[generatorSeed],6)
+            tokensPerPage[generatorSeed] = generador2FA.generate_totp(generatorSeeds[generatorSeed],6)
         return {"tokens":tokensPerPage}, 200
 
 
