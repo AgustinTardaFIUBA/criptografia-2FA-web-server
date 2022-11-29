@@ -94,7 +94,11 @@ def login_2fa_form():
 @app.route("/sync", methods=["GET"])
 def sync_with_app():
     return serverGeneratorSeed
-    
+
+@app.route("/name", methods=["GET"])
+def getName():
+    return serverName
+
 # running flask server
 if __name__ == "__main__":
     print(sys.argv)
