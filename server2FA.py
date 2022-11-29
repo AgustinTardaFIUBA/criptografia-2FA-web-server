@@ -6,6 +6,7 @@ import generador2FA
 from flask_cors import CORS, cross_origin
 from flask_caching import Cache
 import time
+import sys
 
 # configuring flask application
 app = Flask(__name__)
@@ -15,6 +16,7 @@ Bootstrap(app)
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 cache.init_app(app)
 serverGeneratorSeed = None
+serverName = "Nameless Server"
 
 # WEB PAGE
 # homepage route
@@ -39,7 +41,7 @@ def login_form():
     else:
         return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
-def isTimeBlock( ip ):
+def isTimeBlocked( ip ):
     timeBlockedUsers = cache.get('timeBlockedUsers')
     if ip in timeBlockedUsers:
         initialBlockTime = timeBlockedUsers[ip]
@@ -54,32 +56,25 @@ def timeBlockUser( ip ):
 
 def validateUserBlock( ip ):
     usersAttempts = cache.get('usersAttempts')
-    if len(usersAttempts[ip]) > 5:
+    if len(usersAttempts[ip]) >= 5:
         fiveCallWindowDifference = usersAttempts[ip][len(usersAttempts[ip])-1] - usersAttempts[ip][len(usersAttempts[ip])-5] 
         if fiveCallWindowDifference <= 60:
             timeBlockUser(ip)
-            return False
-        
-    return True
 
-def validateAttemptsWindow( ip ):
-    if (isTimeBlock(ip)):
-        return False
-
+def increaseAttemptsWindow( ip ):
     usersAttempts = cache.get('usersAttempts')
     if not (ip in usersAttempts):
         usersAttempts[ip] = []
 
     usersAttempts[ip].append(time.time())    
     cache.set("usersAttempts", usersAttempts)
-    
-    return validateUserBlock(ip)
+    validateUserBlock(ip)
 
 # 2FA form route
 @app.route("/login/2fa/", methods=["POST"])
 def login_2fa_form():
     
-    if( not validateAttemptsWindow(request.remote_addr) ):
+    if( isTimeBlocked(request.remote_addr) ):
         return {"error": "Number of attempts exceeded, wait 2 minutes to retry"}, 403
 
     # getting OTP provided by user
@@ -92,6 +87,7 @@ def login_2fa_form():
         return 'Success', 200
     else:
         # inform users if OTP is invalid
+        increaseAttemptsWindow(request.remote_addr)
         flash("El token TOTP ingresado es inválido.", "danger")
         return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
@@ -101,11 +97,16 @@ def sync_with_app():
     
 # running flask server
 if __name__ == "__main__":
+    print(sys.argv)
+    serverName = sys.argv[2]
+
     usersAttempts = {}
     timeBlockedUsers = {}
     cache.set("usersAttempts", usersAttempts)
     cache.set("timeBlockedUsers", timeBlockedUsers)
+
     serverGeneratorSeed = generador2FA.generate_seed()
-    app.run(debug=True)
+
+    app.run(port = sys.argv[1], debug=True)
 
 
