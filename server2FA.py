@@ -4,12 +4,16 @@ from flask import *
 from flask_bootstrap import Bootstrap
 import generador2FA
 from flask_cors import CORS, cross_origin
+from flask_caching import Cache
+import time
 
 # configuring flask application
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
+cache.init_app(app)
 serverGeneratorSeed = None
 
 # WEB PAGE
@@ -35,10 +39,49 @@ def login_form():
     else:
         return {"error": "The Token is invalid, the user is not authenticated"}, 401
 
+def isTimeBlock( ip ):
+    timeBlockedUsers = cache.get('timeBlockedUsers')
+    if ip in timeBlockedUsers:
+        initialBlockTime = timeBlockedUsers[ip]
+        return (time.time() - initialBlockTime) <= 120
+
+    return False
+
+def timeBlockUser( ip ):
+    timeBlockedUsers = cache.get('timeBlockedUsers')
+    timeBlockedUsers[ip] = time.time()
+    cache.set("timeBlockedUsers", timeBlockedUsers)
+
+def validateUserBlock( ip ):
+    usersAttempts = cache.get('usersAttempts')
+    if len(usersAttempts[ip]) > 5:
+        fiveCallWindowDifference = usersAttempts[ip][len(usersAttempts[ip])-1] - usersAttempts[ip][len(usersAttempts[ip])-5] 
+        if fiveCallWindowDifference <= 60:
+            timeBlockUser(ip)
+            return False
+        
+    return True
+
+def validateAttemptsWindow( ip ):
+    if (isTimeBlock(ip)):
+        return False
+
+    usersAttempts = cache.get('usersAttempts')
+    if not (ip in usersAttempts):
+        usersAttempts[ip] = []
+
+    usersAttempts[ip].append(time.time())    
+    cache.set("usersAttempts", usersAttempts)
+    
+    return validateUserBlock(ip)
+
 # 2FA form route
 @app.route("/login/2fa/", methods=["POST"])
 def login_2fa_form():
     
+    if( not validateAttemptsWindow(request.remote_addr) ):
+        return {"error": "Number of attempts exceeded, wait 2 minutes to retry"}, 403
+
     # getting OTP provided by user
     totp = request.get_json().get("totp")
         
@@ -58,8 +101,11 @@ def sync_with_app():
     
 # running flask server
 if __name__ == "__main__":
+    usersAttempts = {}
+    timeBlockedUsers = {}
+    cache.set("usersAttempts", usersAttempts)
+    cache.set("timeBlockedUsers", timeBlockedUsers)
     serverGeneratorSeed = generador2FA.generate_seed()
     app.run(debug=True)
-
 
 
