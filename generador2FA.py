@@ -65,9 +65,9 @@ def truncate(digest, digits):
 
     # Passcode Decimal Conversion of "digits" length
     passcode = binary % 10 ** digits
-    print(passcode)
     return str(passcode).zfill(digits) # Pads passcode with 0s if necessary
  
 def verify_totp(totp, seed):
-    a, b = generate_totp(seed,6)   
-    return totp == a
+    realTotp = generate_totp(seed,6)   
+    print("🚀 ^ posta totp", realTotp["token"])
+    return totp == realTotp["token"]

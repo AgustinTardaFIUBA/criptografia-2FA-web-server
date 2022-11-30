@@ -79,6 +79,7 @@ def login_2fa_form():
 
     # getting OTP provided by user
     totp = request.get_json().get("totp")
+    print("🚀 ~ totp", totp)
         
     # verifying submitted OTP
     if generador2FA.verify_totp(totp,serverGeneratorSeed):
@@ -86,7 +87,7 @@ def login_2fa_form():
         flash("El token TOTP ingresado es válido.", "success")
         return 'Success', 200
     else:
-        # inform users if OTP is invalid
+        # inform users if OTP is invalidAwert
         increaseAttemptsWindow(request.remote_addr)
         flash("El token TOTP ingresado es inválido.", "danger")
         return {"error": "The Token is invalid, the user is not authenticated"}, 401
