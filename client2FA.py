@@ -59,6 +59,7 @@ def generateToken():
         tokensPerPage = {}
         for generatorSeed in generatorSeeds.keys():
             tokensPerPage[generatorSeed] = generador2FA.generate_totp(generatorSeeds[generatorSeed],6)
+            print(tokensPerPage)
         return {"tokens":tokensPerPage}, 200
 
 
