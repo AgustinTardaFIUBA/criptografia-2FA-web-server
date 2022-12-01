@@ -7,19 +7,13 @@ import requests
 from flask_cors import CORS, cross_origin
 from flask_caching import Cache
 import sys
- 
-config = {
-    "DEBUG": True,          # some Flask specific configs
-    "CACHE_TYPE": "SimpleCache",  # Flask-Caching related configs
-    "CACHE_DEFAULT_TIMEOUT": 300
-}
 
 # configuring flask application
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.config["SECRET_KEY"] = "APP_SECRET_KEY"
 Bootstrap(app)
-cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache', "CACHE_DEFAULT_TIMEOUT": 6000 })
 cache.init_app(app)
 
 # WEB PAGE
@@ -67,7 +61,5 @@ def generateToken():
 if __name__ == "__main__":
     generatorSeeds = {}
     cache.set("generatorSeeds", generatorSeeds)
-    app.run(debug=True, port=5001)
-
-
+    app.run(debug=True, port=5005)
 
