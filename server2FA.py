@@ -45,7 +45,7 @@ def isTimeBlocked( ip ):
     timeBlockedUsers = cache.get('timeBlockedUsers')
     if ip in timeBlockedUsers:
         initialBlockTime = timeBlockedUsers[ip]
-        return (time.time() - initialBlockTime) <= 120
+        return (time.time() - initialBlockTime) <= 60
 
     return False
 
@@ -75,7 +75,7 @@ def increaseAttemptsWindow( ip ):
 def login_2fa_form():
     
     if( isTimeBlocked(request.remote_addr) ):
-        return {"error": "Number of attempts exceeded, wait 2 minutes to retry"}, 403
+        return {"error": "Number of attempts exceeded, wait 1 minute to retry"}, 403
 
     # getting OTP provided by user
     totp = request.get_json().get("totp")
