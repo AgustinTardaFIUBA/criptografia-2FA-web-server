@@ -75,7 +75,7 @@ def increaseAttemptsWindow( ip ):
 def login_2fa_form():
     
     if( isTimeBlocked(request.remote_addr) ):
-        return {"error": "Number of attempts exceeded, wait 2 minutes to retry"}, 403
+        return {"error": "Number of attempts exceeded, wait 1 minute to retry"}, 403
 
     # getting OTP provided by user
     totp = request.get_json().get("totp")
