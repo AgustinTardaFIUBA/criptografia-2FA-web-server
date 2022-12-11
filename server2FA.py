@@ -45,7 +45,7 @@ def isTimeBlocked( ip ):
     timeBlockedUsers = cache.get('timeBlockedUsers')
     if ip in timeBlockedUsers:
         initialBlockTime = timeBlockedUsers[ip]
-        return (time.time() - initialBlockTime) <= 120
+        return (time.time() - initialBlockTime) <= 60
 
     return False
 
